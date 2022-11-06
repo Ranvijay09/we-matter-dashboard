@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | W.E. Matter University</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/dashboard">W.E. Matter University</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout" role="button">
+                            Log out
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid row">
+        <select class="form-select form-select-lg mt-2" aria-label="Default select example" id="location">
+            <option value="All" selected>All</option>
+            <%allLocations.forEach(location=> {%>
+                <option value="<%=location.allDistinctLocations%>">
+                    <%=location.allDistinctLocations%>
+                </option>
+                <%})%>
+        </select>
+        <div class="col-6 mt-2 card">
+            <div id="donutChartContainer" style="height: 70vh; width: 100%;"></div>
+        </div>
+        <div class="col-6 mt-2 card">
+            <div id="stackedBarChartContainer" style="height: 70vh; width: 100%;"></div>
+        </div>
+    </div>
+    <script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            drawCharts();
+
+            $('#location').change(() => drawCharts());
+
+            function drawCharts() {
+                var loc = $('#location').val();
+
+                var donutData;
+                $.ajax({
+                    url: '/getAllData',
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (response) { 
+                        donutData = [
+                            { label: "Passed Students", y: response.passedStudents[loc] },
+                            { label: "Failed Students", y: response.failedStudents[loc] }
+                        ]
+
+                        var donutChart = {
+                            animationEnabled: true,
+                            title: {
+                                text: ""
+                            },
+                            data: [{
+                                type: "doughnut",
+                                innerRadius: "40%",
+                                showInLegend: true,
+                                legendText: "{label}",
+                                indexLabel: "{label}: #percent%",
+                                dataPoints: donutData
+                            }]
+                        };
+
+                        var stackedBarPassData, stackedBarFailData;
+
+                        if(loc==='All') {
+                            stackedBarPassData = [
+                                { y: response.passedStudents.Delhi, label: "Delhi" },
+                                { y: response.passedStudents.Mumbai, label: "Mumbai" },
+                                { y: response.passedStudents.Gurugram, label: "Gurugram" },
+                                { y: response.passedStudents.Hyderabad, label: "Hyderabad" },
+                                { y: response.passedStudents.Bangalore, label: "Bangalore" },
+                                { y: response.passedStudents.Chennai, label: "Chennai" }
+                            ]
+                            stackedBarFailData = [
+                                { y: response.failedStudents.Delhi, label: "Delhi" },
+                                { y: response.failedStudents.Mumbai, label: "Mumbai" },
+                                { y: response.failedStudents.Gurugram, label: "Gurugram" },
+                                { y: response.failedStudents.Hyderabad, label: "Hyderabad" },
+                                { y: response.failedStudents.Bangalore, label: "Bangalore" },
+                                { y: response.failedStudents.Chennai, label: "Chennai" }
+                            ]
+                        } else {
+                            stackedBarPassData = [
+                                { y: response.passedStudents[loc], label: loc }
+                            ]
+                            stackedBarFailData = [
+                                { y: response.failedStudents[loc], label: loc }
+                            ]
+                        }
+
+                        var stackedBarChart = {
+                            animationEnabled: true,
+                            theme: "light2", //"light1", "dark1", "dark2"
+                            title: {
+                                text: ""
+                            },
+                            axisY: {
+                                interval: 10,
+                                suffix: "%"
+                            },
+                            toolTip: {
+                                shared: true
+                            },
+                            data: [{
+                                type: "stackedBar100",
+                                toolTipContent: "{label}<br><b>{name}:</b> {y} (#percent%)",
+                                showInLegend: true,
+                                name: "Passed Students",
+                                dataPoints: stackedBarPassData
+                            },
+                            {
+                                type: "stackedBar100",
+                                toolTipContent: "<b>{name}:</b> {y} (#percent%)",
+                                showInLegend: true,
+                                name: "Failed Students",
+                                dataPoints: stackedBarFailData
+                            }]
+                        };
+                        $("#donutChartContainer").CanvasJSChart(donutChart);
+                        $("#stackedBarChartContainer").CanvasJSChart(stackedBarChart);
+                    }
+                });
+                
+            }
+        });
+    </script>
+</body>
+
+</html>

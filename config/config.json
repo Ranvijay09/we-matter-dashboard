@@ -1,0 +1,7 @@
+{
+    "host": "localhost",
+    "user": "root",
+    "database": "we_matter_university",
+    "password": "",
+    "port": 3306
+}
