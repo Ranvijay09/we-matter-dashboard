@@ -6,7 +6,11 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 
+const Student = require('../models/student');
+
 const JWT_SECRET = '#$##$%$VINOD$#%$%%';
+
+const dashboardController = require('./dashboard-controller');
 
 exports.login = async (req, res, next) => {
     const { email, pwd } = req.body;
@@ -17,7 +21,9 @@ exports.login = async (req, res, next) => {
         if (user[0].length !== 1) {
             const error = new Error('A user with this email could not be found.');
             error.statusCode = 401;
-            throw error;
+            res.render('login', { msg: 'A user with this email could not be found.' });
+            return;
+            //throw error;
         }
 
         const storedUser = user[0][0];
@@ -27,7 +33,9 @@ exports.login = async (req, res, next) => {
         if (!isEqual) {
             const error = new Error('Wrong password!');
             error.statusCode = 401;
-            throw error;
+            res.render('login', { msg: 'Wrong password!' });
+            return;
+            //throw error;
         }
 
         const token = jwt.sign(
@@ -38,7 +46,9 @@ exports.login = async (req, res, next) => {
             JWT_SECRET,
             { expiresIn: '1h' }
         );
-        res.status(200).json({ token: token, userId: storedUser.id });
+        const [allLocations] = await Student.getAllDistinctLocations();
+        res.render('dashboard', { allLocations: allLocations, token: token, userId: storedUser.user_id });
+        //res.render('dashboard', { token: token, userId: storedUser.id });
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
@@ -55,7 +65,9 @@ exports.forgotPassword = async (req, res, next) => {
     if (user[0].length !== 1) {
         const error = new Error('A user with this email could not be found.');
         error.statusCode = 401;
-        throw error;
+        res.render('forgot-password', { msg: 'A user with this email could not be found.' });
+        return;
+        //throw error;
     }
 
     const storedUser = user[0][0];
@@ -75,7 +87,8 @@ exports.forgotPassword = async (req, res, next) => {
 
     console.log(link);
 
-    res.status(200).json({ token: token, userId: storedUser.id });
+    // res.status(200).json({ token: token, userId: storedUser.id });
+    res.render('forgot-password', { msg: 'Mail containing reset password link has been sent to the given password if its valid!!!' });
 };
 
 exports.goToResetPassword = async (req, res, next) => {
@@ -130,7 +143,7 @@ exports.resetPassword = async (req, res, next) => {
 
             User.updatePwdById(id, hashedPassword);
         }
-        res.render('login');
+        res.render('login', { msg: 'Password reset successfully!!!' });
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;

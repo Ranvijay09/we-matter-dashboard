@@ -8,11 +8,15 @@ const User = require('../models/user');
 
 const authController = require('../controllers/auth-controller');
 
-router.get('/', (req, res) => res.render('login'));
+const dashboardController = require('../controllers/dashboard-controller');
+
+router.get('/getAllData', dashboardController.fetchAllData);
+
+router.get('/', (req, res) => res.render('login', { msg: '' }));
 
 router.post('/', authController.login);
 
-router.get('/forgot-password', (req, res) => res.render('forgot-password'));
+router.get('/forgot-password', (req, res) => res.render('forgot-password', {msg: ''}));
 
 router.post('/forgot-password', authController.forgotPassword);
 

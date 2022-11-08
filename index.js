@@ -4,15 +4,11 @@ const bodyParser = require('body-parser');
 
 const cors = require('cors');
 
-const authRoutes = require('./routes/auth-routes');
-
-const otherRoutes = require('./routes/other-routes');
+const routes = require('./routes/routes');
 
 const errorController = require('./controllers/error-controller');
-const dashboardController = require('./controllers/dashboard-controller');
 
 const User = require('./models/user');
-const Student = require('./models/student');
 
 const app = express();
 
@@ -26,9 +22,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 app.set('view engine', 'ejs');
 
-app.use(authRoutes);
-
-app.use(otherRoutes);
+app.use(routes);
 
 app.use(errorController.get404);
 

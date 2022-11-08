@@ -1,3 +1,8 @@
+<%if(token=='' || userId=='') {%>
+                <div class="alert alert-secondary mt-1" role="alert">
+                    You are not authorized!!! <a class="form-check-label float-end" href="/">Go to login</a>
+                </div>
+                <%} else {%>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -27,7 +32,7 @@
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="/logout" role="button">
+                        <a class="nav-link" href="/" role="button">
                             Log out
                         </a>
                     </li>
@@ -64,11 +69,12 @@
                 var loc = $('#location').val();
 
                 var donutData;
+                var stackedBarPassData, stackedBarFailData;
                 $.ajax({
                     url: '/getAllData',
                     type: 'get',
                     dataType: 'json',
-                    success: function (response) { 
+                    success: function (response) {
                         donutData = [
                             { label: "Passed Students", y: response.passedStudents[loc] },
                             { label: "Failed Students", y: response.failedStudents[loc] }
@@ -88,8 +94,6 @@
                                 dataPoints: donutData
                             }]
                         };
-
-                        var stackedBarPassData, stackedBarFailData;
 
                         if(loc==='All') {
                             stackedBarPassData = [
@@ -156,3 +160,4 @@
 </body>
 
 </html>
+<%}%>
