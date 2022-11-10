@@ -1,5 +1,3 @@
-const { validationResult } = require('express-validator');
-
 const bcrypt = require('bcryptjs');
 
 const jwt = require('jsonwebtoken');
@@ -142,8 +140,10 @@ exports.resetPassword = async (req, res, next) => {
             const hashedPassword = await bcrypt.hash(pwd, 12);
 
             User.updatePwdById(id, hashedPassword);
+        } else {
+            res.send('Password & Confirm Password are different.');
         }
-        res.render('login', { msg: 'Password reset successfully!!!' });
+        res.send('Password reset successfully!!!');
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;

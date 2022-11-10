@@ -1,5 +1,3 @@
-const { validationResult } = require('express-validator');
-
 const Student = require('../models/student');
 
 exports.fetchAllData = async (req, res, next) => {
